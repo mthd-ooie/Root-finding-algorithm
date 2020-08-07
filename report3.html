@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <link rel="stylesheet" href="report3.css">
+  <script src="https://sekika.github.io/js/graph.js"></script>
+</head>
+<body>
+<div>
+  <h1 class="title">二分法とニュートン法の比較</h1>
+</div>
+<br>
+<div class="siyou">
+<div>使用関数</div>
+<div>y=0.2x(x-1.2)(x+3.3)</div>
+</div>
+<br>
+<div class="gosa">(誤差 0.001)</div>
+<div class="nibunnhou">二分法</div>
+<div class="kukan">
+区間[<input type="number" id="a"value="0" class="a">, <input type="number" id="b"value="0"class="b">]
+<input class="sousin"type="submit" id="nibun">
+</div>
+<div class="newtonhou">ニュートン法</div>
+<div class="syokiti">
+初期値 x=<input type="number" id="n" value="0" class="n">
+<input class="sousin" type="submit" id="nyuton">
+</div>
+<div class="answer"id="houhou"></div>
+<div class="answer">
+回数=<div id="count"></div> 
+</div>
+<div class="answer">
+解=<div id="kai"></div>
+</div>
+<canvas class="canvas" id="canvas" width="500" height="400" style="max-width: 100%; height: auto; max-height: 100%">
+</canvas>
+
+<script>
+var q=0;
+var nib;
+var nyu;
+var nyu2;
+var a;
+var b;
+var n;
+var i=0;
+var x1;
+var x2;
+var y1;
+var y2;
+var y3;
+var k;
+var p;
+
+document.getElementById('nibun').onclick=function(){
+  clearInterval(nib);
+  clearInterval(nyu);
+  q=0;
+  i=0;
+  count.innerHTML="";
+  kai.innerHTML="";
+  houhou.innerHTML="";
+  ctx.clearRect(0,0,600,600);
+  drow();
+  a=document.getElementById("a").value;
+  b=document.getElementById("b").value;
+  a=Number(a);
+  b=Number(b);
+  nibun();
+  if(q==0||q==1)nib=setInterval(nibun,1000);
+}
+
+document.getElementById('nyuton').onclick=function(){
+  clearInterval(nib);
+  clearInterval(nyu);
+  q=2;
+  i=0;
+  count.innerHTML="";
+  kai.innerHTML="";
+  houhou.innerHTML="";
+  ctx.clearRect(0,0,600,600);
+  drow();
+  n=document.getElementById("n").value;
+  n=Number(n);
+  nyuton();
+  nyu=setInterval(nyuton,2000);
+}
+
+var c = document.getElementById('canvas');
+var ctx = c.getContext('2d');
+ctx.font = "20px serif";
+ctx.lineWidth = 1;
+
+var x0=250;
+var y0=300;
+ctx.originX = x0;
+ctx.originY = y0;
+ctx.unitX = 50;
+ctx.unitY = -50;
+
+function drow(){
+  ctx.clearRect(0,0,600,600);
+  ctx.strokeStyle = "black";
+  ctx.fillStyle = "black";
+  drawAxis(ctx);
+  drawScaleX(ctx);
+  drawScaleY(ctx);
+  ctx.strokeStyle = "green";
+  draw(ctx, plus);
+  ctx.fillStyle = "green";
+}
+drow();
+
+function point(){
+  ctx.strokeStyle = "red";
+  ctx.fillStyle = "red";
+  ctx.beginPath();
+  ctx.arc(x1,y1,3,0,Math.PI*2.0,true);
+  ctx.fill();
+  if(q==0){
+    ctx.beginPath();
+    ctx.moveTo(x1,y0);
+    ctx.lineTo(x1,y1);
+    ctx.stroke();
+    ctx.strokeStyle = "blue";
+    ctx.fillStyle = "blue";
+    ctx.beginPath();
+    ctx.moveTo(x2,y0);
+    ctx.lineTo(x2,y2);
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.arc(x2,y2,3,0,Math.PI*2.0,true);
+  ctx.fill();
+}
+
+function plus(x) {
+  return 0.2*(x-1.2)*(x+3.3)*x;
+}
+
+function sessen(x){
+  return k*x+p;
+}
+
+function line(){
+  ctx.strokeStyle = "red";
+  ctx.fillStyle = "red";
+  ctx.beginPath();
+  ctx.moveTo(x1,y0);
+  ctx.lineTo(x1,y1);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(x1,y1,3,0,Math.PI*2.0,true);
+  ctx.fill();
+  clearInterval(nyu2);
+}
+
+function nibun(){
+  i++;
+  if(q==0){
+    console.log(i);
+  }
+  drow();
+  c=(a+b)/2;
+  x1=kanX(a);
+  y1=kanY(a);
+  x2=kanX(b);
+  y2=kanY(b);
+  point();
+  y3=kanY(c);
+  if(q==1){
+    console.log("clear");
+    count.innerHTML=i;
+    kai.innerHTML=a;
+    houhou.innerHTML="二分法";
+    clearInterval(nib);
+  }else  if((y1-y0)*(y2-y0)>0){
+    console.log("error");
+    kai.innerHTML="エラー";
+    clearInterval(nib);
+    q=2;
+  }
+  if(q==0){
+    if(Math.abs(y1-y2)<0.05||(y3-y0)==0){
+      if((y3-y0)==0){
+        a=c;
+        b=c;
+      }
+      q=1;
+      i-=1;
+    }else if((y1-y0)==0){
+      b=a;
+      q=1;
+      i-=1;
+    }else if((y2-y0)==0){
+      a=b;
+      q=1;
+      i-=1;
+    }else if((y1-y0)*(y3-y0)<0){
+      b=c;
+    }else if((y2-y0)*(y3-y0)<0){
+      a=c;
+    }
+  }
+}
+
+function nyuton(){
+  if(q==1){
+    clearInterval(nyu);
+    count.innerHTML=i;
+    kai.innerHTML=n;
+    houhou.innerHTML="ニュートン法";
+  }else{
+    i++;
+    console.log(i);
+    drow();
+    x1=kanX(n);
+    y1=kanY(n);
+    x2=x1;
+    y2=y1;
+    point();
+    k=0.2*((3*n*n)+(4.2*n)-3.96);
+    p=(y0-y1)/50-k*n;
+    if(k==0){
+      clearInteval(nyu);
+      kai.innerHTML="エラー";
+    }
+    ctx.strokeStyle = "blue";
+    ctx.fillStyle = "blue";
+    draw(ctx, sessen);
+    n=-p/k;
+    console.log(n);
+    x1=kanX(n);
+    y1=kanY(n);
+    ctx.beginPath();
+    ctx.arc(x1,y0,3,0,Math.PI*2.0,true);
+    ctx.fill();
+    nyu2=setInterval(line,1000);
+    if(Math.abs(y2-y0)<0.05&&q==2){
+      console.log("clear");
+      q=1;
+    }
+  }
+}
+
+function kanX(kx){
+  kx=x0+50*kx;
+  return kx;
+}
+
+function kanY(ky){
+  ky=y0-50*0.2*(ky-1.2)*(ky+3.3)*ky;
+  return ky;
+}
+</script>
+</div>
+</body>
+</html>
